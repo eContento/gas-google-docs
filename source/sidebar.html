@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+  
+    <form id="f">
+      <button id="formatButton">Dar Formato</button>
+    </form>
+    
+    <?!= include('sql-formatter.min.js.html'); ?>
+    <script>
+    
+      //obtiene el texto seleccionado y lo formatea
+      function format(e){
+        this.disabled = true;
+        google.script.run
+          .withSuccessHandler(function(text,element){
+             var formattedText = sqlFormatter.format(text);
+             //var html = Prism.highlight(formattedText, Prism.languages.sql, 'sql');
+             //alert(html);
+             
+             insertText(formattedText);
+             element.disabled = false;
+          })
+          .withFailureHandler(function(err,element){
+             alert(err);
+             element.disabled = false;
+          })
+          .withUserObject(this)
+          .getText();
+      }
+      
+      //funcion que reemplaza la query por la query formateada
+      function insertText(formattedText) {
+        this.disabled = true;
+        console.log(formattedText);
+
+        google.script.run
+          .withSuccessHandler(function(returnSuccess, element) {
+             element.disabled = false;
+           })
+          .withFailureHandler(function(msg, element) {
+             alert(msg);
+             element.disabled = false;
+          })
+          .withUserObject(this)
+          .insertText(formattedText);
+      }
+
+      //funcion que se ejecuta en el "load" de la pagina
+      function init() {     
+        document.querySelector('#f').addEventListener('submit', function(event) {
+          event.preventDefault();
+        });
+        document.querySelector('#formatButton').addEventListener('click',function(event){
+          format(event);
+        })
+      }
+
+      window.addEventListener('load', init);
+
+    </script>
+    
+  </body>
+</html>
+
+
